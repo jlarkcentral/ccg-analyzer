@@ -9,11 +9,6 @@ author: j.lark
 
 import re
 from pyparsing import nestedExpr
-import itertools
-
-#def main():
-#	txt = '(SN\S)\\(N/N)'
-#	print(parse(txt))
 
 # parsing from text rule to list of symbols and operators
 def parse(rule):
@@ -36,6 +31,7 @@ def parseList(e):
 		print(r)
 	return r
 
+# recursive cleaning of nested singletons
 def cleanSingleton(l,aux):
 	for e in l:
 		if isinstance(e,list) and len(e) == 1:
@@ -50,11 +46,3 @@ def cleanSingleton(l,aux):
 			e = cleanSingleton(e,[])
 			aux.append(e)
 	return aux
-
-
-#if __name__ == '__main__':
-#	main()
-
-
-
-

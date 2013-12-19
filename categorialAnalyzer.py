@@ -12,19 +12,26 @@ author: j. lark
 
 import sys
 from collections import defaultdict
-
+import ruleParser
 
 
 def main():
-
-	S = ['Pierre','aime','bcp','les','pommes']
 	
+	S = ['Pierre','aime','bcp','les','pommes']
+	'''
 	lex = []
 	lex.append(['Pierre','SN'])
 	lex.append(['aime', [['SN','\\','S'],'/','SN']])
 	lex.append(['bcp',[ [ ['SN','\\','S'],'/','SN'] ,'\\', [['SN','\\','S'],'/','SN'] ] ])
 	lex.append(['les',['SN','/','N']])
 	lex.append(['pommes','N'])
+	'''
+	lex = []
+	with open(sys.argv[1]) as f:
+		for line in f:
+			rule = line.split('\t')
+			if len(rule) == 2:
+				lex.append([rule[0],ruleParser.parse(rule[1])])
 
 	tree = []
 	tab = []
@@ -60,13 +67,10 @@ def main():
 				tab.append(tree[-1][i])
 			i += 1
 		if tab != tree[-1]:
-			#print(tab)
 			tree.append(tab)
 		else:
 			break
 		
-		#for t in tree:
-		#	print(t)
 		print('==================================')
 		it += 1
 		
