@@ -26,9 +26,6 @@ def main():
 	lex.append(['les',['SN','/','N']])
 	lex.append(['pommes','N'])
 
-	#lex.append('a',['SN','/','N'])
-	#lex.append()
-
 	tree = []
 	tab = []
 	for i in range(len(S)):

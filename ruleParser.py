@@ -11,9 +11,9 @@ import re
 from pyparsing import nestedExpr
 import itertools
 
-def main():
-	txt = '((SN\S)\\(N/N))/SN'
-	print(parse(txt))
+#def main():
+#	txt = '(SN\S)\\(N/N)'
+#	print(parse(txt))
 
 # parsing from text rule to list of symbols and operators
 def parse(rule):
@@ -41,14 +41,19 @@ def cleanSingleton(l,aux):
 		if isinstance(e,list) and len(e) == 1:
 			while isinstance(e,list) and len(e) == 1:
 				e = e[0]
+			if isinstance(e,list) and len(e) == 2:
+				for el in e:
+					aux.append(el)
+			else:
+				aux.append(e)
 		elif isinstance(e,list) and len(e) == 3:
 			e = cleanSingleton(e,[])
-		aux.append(e)
+			aux.append(e)
 	return aux
 
 
-if __name__ == '__main__':
-	main()
+#if __name__ == '__main__':
+#	main()
 
 
 
