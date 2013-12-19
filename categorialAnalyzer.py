@@ -13,42 +13,90 @@ author: j. lark
 import sys
 from collections import defaultdict
 
+
+
 def main():
-	#let the input be a string S consisting of n characters: a1 ... an.
-	S = ['Pierre','aime','les','voitures']
-	#let the grammar contain r nonterminal symbols R1 ... Rr.
-	g = []
-	g.append(['Pierre','SN'])
-	g.append(['aime','(SN\S)/SN'])
-	g.append(['les','SN/N']) 
-	g.append(['voitures','N'])
-	#non_term = ['S','NP']
 
-	P = defaultdict(lambda:defaultdict(lambda:defaultdict(lambda:False)))
-
-	for i in range(len(S)):
-		for r in g:
-			if r[0] == S[i]:
-				P[i][1][r[0]] = True
-				print(S[i])
-
-	for i in range(2,len(S)+1):
-		for j in range(len(S)-i+2):
-			for k in range(i):
-				for r in g:
-					#print('P['+str(j)+']['+str(k)+']['+str(r[1][0])+'] = '+ str(P[j][k][r[1][0]]))
-					#print('P['+str(j+k)+']['+str(i-k)+']['+str(r[1][1])+'] = '+ str(P[j+k][i-k][r[1][1]]))
-					if P[j][k][r[1][0]] and P[j+k][i-k][r[1][1]]:
-						P[j][i][r[0]] = True
-						#print('---> P['+str(j)+']['+str(i)+']['+str(r)+'] = True')
-					#print('===================')
+	S = ['Pierre','aime','bcp','les','pommes']
 	
-	if P[0][len(S)]['S'] == True:
-		print('S is in the language')
+	lex = []
+	lex.append(['Pierre','SN'])
+	lex.append(['aime', [['SN','\\','S'],'/','SN']])
+	lex.append(['bcp',[ [ ['SN','\\','S'],'/','SN'] ,'\\', [['SN','\\','S'],'/','SN'] ] ])
+	lex.append(['les',['SN','/','N']])
+	lex.append(['pommes','N'])
 
+	#lex.append('a',['SN','/','N'])
+	#lex.append()
+
+	tree = []
+	tab = []
+	for i in range(len(S)):
+		for r in lex:
+			if r[0] == S[i]:
+				tab.append(r[1])
+	tree.append(tab)
+	print(tab)
+
+	it = 0
+	while it < len(S) and tree[-1] != ['S']:
+		tab = []
+		i = 0
+		while i < len(tree[-1]):
+			if i == len(tree[-1])-1:
+				print('end of line')
+				print(tree[-1][i])
+				tab.append(tree[-1][i])
+			elif rule1(tree[-1][i],tree[-1][i+1]):
+				print('rule1')
+				print(tree[-1][i][0])
+				tab.append(tree[-1][i][0])
+				i += 1
+			elif rule2(tree[-1][i],tree[-1][i+1]):
+				print('rule2')
+				print(tree[-1][i+1][2])
+				tab.append(tree[-1][i+1][2])
+				i += 1
+			else:
+				print('no rule')
+				print(tree[-1][i])
+				tab.append(tree[-1][i])
+			i += 1
+		if tab != tree[-1]:
+			#print(tab)
+			tree.append(tab)
+		else:
+			break
+		
+		#for t in tree:
+		#	print(t)
+		print('==================================')
+		it += 1
+		
+
+	if tree[-1] == ['S']:
+		print("S in language")
 	else:
-		print('S is NOT in the language')
+		print("S not in language")
 
+
+def rule1(X,Y): # if A/B , B -> A
+	#print(X,Y)
+	if isinstance(X,list) and len(X) == 3 and X[1] == '/' and X[2] == Y:
+		#print(X,Y)
+		#print('---> ' + str(X[0]))
+		return True
+	else:
+		return False
+
+def rule2(X,Y): # if B , B\A -> A
+	#print(X,Y)
+	if isinstance(Y,list) and len(Y) == 3 and Y[1] == '\\' and Y[0] == X:
+		#print(X,Y)
+		#print('---> ' +str(Y[2]))
+		return True
+	else:
+		return False
 
 if __name__ == '__main__':
 	main()
