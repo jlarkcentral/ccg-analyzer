@@ -13,11 +13,11 @@ from pyparsing import nestedExpr
 # parsing from text rule to list of symbols and operators
 def parse(rule):
 	symbols = nestedExpr('(',')').parseString('('+rule+')').asList()[0]
-	print(symbols)
+	#print(symbols)
 	r = []
 	for e in symbols:
 		r.append(parseList(e))
-	print(r)
+	#print(r)
 	return cleanSingleton(r,[])
 
 # recursive nested brackets identification
@@ -28,7 +28,7 @@ def parseList(e):
 			r.append(parseList(el))
 	else:
 		r.append(list(filter(('').__ne__,re.split('(\W)', e))))
-		print(r)
+		#print(r)
 	return r
 
 # recursive cleaning of nested singletons
@@ -45,4 +45,10 @@ def cleanSingleton(l,aux):
 		elif isinstance(e,list) and len(e) == 3:
 			e = cleanSingleton(e,[])
 			aux.append(e)
-	return aux
+	if len(aux) == 1:
+		return aux[0]
+	else:
+		return aux
+
+
+		
