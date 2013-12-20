@@ -51,4 +51,3 @@ def cleanSingleton(l,aux):
 		return aux
 
 
-		
