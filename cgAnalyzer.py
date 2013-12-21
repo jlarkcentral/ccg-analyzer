@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-Categorial grammar analyzer using CYK algorithm
+Categorial grammar analyzer using pseudo-CYK algorithm
 
 usage:
-python categorialAnalyzer.py <trainfile> <testfile>
+python categorialAnalyzer.py <rule file> "string sample"
 
 author: j. lark
 '''
@@ -18,17 +18,25 @@ from PIL import Image
 
 
 def main():
+	if len(sys.argv) != 3:
+		print('usage: \n python cgAnalyzer.py <lexicon file> "string sample"')
+		exit()
+
+	# input sentence
 	S = sys.argv[2].split(' ')
 
+	# graph initialization
 	A = PG.AGraph(directed=True)
 
+	# lexicon initialization
 	lex = []
 	with open(sys.argv[1]) as f:
 		for line in f:
 			rule = line.split('\t')
 			if len(rule) == 2:
 				lex.append([rule[0],ruleParser.parse(rule[1])])
-	
+
+	# computation array initialization
 	tree = []
 	tab = []
 	nodi = 0
@@ -38,7 +46,7 @@ def main():
 			if r[0] == S[i]:
 				tab.append(r[1])
 				# drawing...
-				A.add_node(nodi,label=str(r[0]))
+				A.add_node(nodi,label=r[0])
 				nodi += 1
 	tree.append(tab)
 	nodiTab.append(range(len(S)))
@@ -46,55 +54,42 @@ def main():
 	for i in range(len(S)):
 		for r in lex:
 			if r[0] == S[i]:
-				A.add_node(nodi,label=str(r[1]))
+				A.add_node(nodi,label=ruleParser.labelize(r[1]))
 				nodi += 1
 				A.add_edge(i,nodi-1)
 	nodiTab.append(range(len(S),2*len(S)))
-	print(tab)
 
+	# main computation
 	it = 0
 	while it < len(S) and tree[-1] != ['S']:
 		tab = []
 		nodiInnerTab = []
 		i = 0
 		while i < len(tree[-1]):
-			if i == len(tree[-1])-1:
-				print('end of line')
-				#print('\t'*i+ str(tree[-1][i]))
+			if i == len(tree[-1])-1: # end of list
 				tab.append(tree[-1][i])
 				nodiInnerTab.append(nodiTab[-1][i])
-			elif rule1(tree[-1][i],tree[-1][i+1]):
-				print('rule1')
-				#print(str(tree[-1][i][0]))
+			elif rule1(tree[-1][i],tree[-1][i+1]): # rule 1 applies
 				tab.append(tree[-1][i][0])
-				
 				#drawing...
-				A.add_node(nodi,label=str(tree[-1][i][0]))
+				A.add_node(nodi,label=ruleParser.labelize(tree[-1][i][0]))
 				nodi += 1
 				nodiInnerTab.append(nodi-1)
 				A.add_edge(nodiTab[-1][i],nodi-1)
-				print('add edge : ', str(nodiTab[-1][i]),str(nodi-1))
 				A.add_edge(nodiTab[-1][i+1],nodi-1)
-				print('add edge : ', str(nodiTab[-1][i+1]),str(nodi-1))
 				i += 1
-			elif rule2(tree[-1][i],tree[-1][i+1]):
-				print('rule2')
-				#print('\t'*i+ str(tree[-1][i+1][2]))
+			elif rule2(tree[-1][i],tree[-1][i+1]): # rule 2 applies
 				tab.append(tree[-1][i+1][2])
-				
 				# drawing...
-				A.add_node(nodi,label=str(tree[-1][i+1][2]))
+				A.add_node(nodi,label=ruleParser.labelize(tree[-1][i+1][2]))
 				nodi += 1
+				nodiInnerTab.append(nodi-1)
 				A.add_edge(nodiTab[-1][i],nodi-1)
-				print('add edge : ', str(nodiTab[-1][i]),str(nodi-1))
 				A.add_edge(nodiTab[-1][i+1],nodi-1)
-				print('add edge : ', str(nodiTab[-1][i+1]),str(nodi-1))
 				i += 1
-			else:
-				print('no rule')
+			else: # no rule
 				tab.append(tree[-1][i])
 				nodiInnerTab.append(nodiTab[-1][i])
-
 			i += 1
 		nodiTab.append(nodiInnerTab)
 		if tab != tree[-1]:
@@ -102,37 +97,33 @@ def main():
 		else:
 			break
 		it += 1
-		print(tab)
 
+	# result
 	if tree[-1] == ['S']:
 		print("S in language")
-		#print(prettyprint)
 	else:
 		print("S not in language")
 	
-	A.write('ademo.dot')
 	A.layout(prog='dot')
 	A.draw('graph.png')
 	img = Image.open('graph.png')
 	img.show()
 
-def rule1(X,Y): # if A/B , B -> A
-	#print(X,Y)
-	if isinstance(X,list) and len(X) == 3 and X[1] == '/' and X[2] == Y:
-		#print(X,Y)
-		#print('---> ' + str(X[0]))
-		return True
-	else:
-		return False
 
-def rule2(X,Y): # if B , B\A -> A
-	#print(X,Y)
-	if isinstance(Y,list) and len(Y) == 3 and Y[1] == '\\' and Y[0] == X:
-		#print(X,Y)
-		#print('---> ' +str(Y[2]))
-		return True
-	else:
-		return False
+# if A/B , B -> A
+def rule1(X,Y):
+	return isinstance(X,list) and len(X) == 3 and X[1] == '/' and X[2] == Y
+
+# if B , B\A -> A
+def rule2(X,Y):
+	return isinstance(Y,list) and len(Y) == 3 and Y[1] == '\\' and Y[0] == X
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
 	main()

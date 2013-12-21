@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Rule parsing for ccg-analyzer
+Rule parsing for cg-analyzer
 
 author: j.lark
 '''
@@ -13,41 +13,45 @@ from pyparsing import nestedExpr
 # parsing from text rule to list of symbols and operators
 def parse(rule):
 	symbols = nestedExpr('(',')').parseString('('+rule+')').asList()[0]
-	#print(symbols)
 	r = []
 	for e in symbols:
-		r.append(parseList(e))
-	#print(r)
-	return cleanSingleton(r,[])
+		newParse = parseList(e)
+		if len(newParse) == 1:
+			r.append(newParse[0])
+		elif len(newParse) == 2:
+				r.append(newParse[0])
+				r.append(newParse[1])
+		else:
+			r.append(newParse)
+	while isinstance(r,list) and len(r) == 1:
+		r = r[0]
+	return r
 
 # recursive nested brackets identification
 def parseList(e):
 	r = []
 	if isinstance(e,list):
 		for el in e:
-			r.append(parseList(el))
+			newParse = parseList(el)
+			if len(newParse) == 1:
+				r.append(newParse[0])
+			elif len(newParse) == 2:
+				r.append(newParse[0])
+				r.append(newParse[1])
+			else:
+				r.append(newParse)
 	else:
-		r.append(list(filter(('').__ne__,re.split('(\W)', e))))
-		#print(r)
+		split = list(filter(('').__ne__,re.split('(\W)', e)))
+		for el in split:
+			r.append(el)
 	return r
 
-# recursive cleaning of nested singletons
-def cleanSingleton(l,aux):
+# list of symbols into label
+def labelize(l):
+	r = ''
 	for e in l:
-		if isinstance(e,list) and len(e) == 1:
-			while isinstance(e,list) and len(e) == 1:
-				e = e[0]
-			if isinstance(e,list) and len(e) == 2:
-				for el in e:
-					aux.append(el)
-			else:
-				aux.append(e)
-		elif isinstance(e,list) and len(e) == 3:
-			e = cleanSingleton(e,[])
-			aux.append(e)
-	if len(aux) == 1:
-		return aux[0]
-	else:
-		return aux
-
-
+		if isinstance(e,list):
+			r += '('+labelize(e)+')'
+		else:
+			r += e.replace('\\','\\\\')
+	return r

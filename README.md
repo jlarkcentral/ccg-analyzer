@@ -1,4 +1,4 @@
-ccg-analyzer
+cg-analyzer
 ============
 
-Python CCG analyzer
+Python Categorial Grammar analyzer
