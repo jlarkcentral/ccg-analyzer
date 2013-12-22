@@ -4,5 +4,7 @@ beaucoup	((SN\S)/SN)\((SN\S)/SN)
 les	SN/N
 pommes	N
 le	SN/N
+le	N/N
 chat	N
 mord	(SN\S)/SN
+mord	(N\S)/N
