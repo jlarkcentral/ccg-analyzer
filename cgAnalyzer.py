@@ -119,7 +119,7 @@ def analyze(S,lex):
 	# result
 	pp = ''
 	for i in range(len(S)):
-		pp += S[i]+' ---> '+ruleParser.labelize(lex[i][1])+'\n'
+		pp += S[i]+' ---> '+ruleParser.labelize(tree[0][i])+'\n'
 
 	if tree[-1] == ['S']:
 		print('\''+" ".join(S)+'\', using:\n\n'+pp+'\nis recognized')
@@ -131,7 +131,7 @@ def analyze(S,lex):
 		print(" ".join(S)+', using:\n\n'+pp+'\nis not recognized')
 		print('==============================')
 
-	if len(sys.argv) == 4 and sys.argv[3] =='-g':
+	if len(sys.argv) == 4 and (sys.argv[3] =='-g' or (sys.argv[3] =='-gcorrect' and tree[-1] == ['S'])):
 		A.layout(prog='dot')
 		A.draw('graph.png')
 		img = Image.open('graph.png')
